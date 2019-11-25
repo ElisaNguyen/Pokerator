@@ -8,3 +8,13 @@ Insert conceptnet response into template
 E.g. Horsemon can jump a barrier.
 Adjust grammar if necessary?
 """
+
+def conceptnet_request(word):
+    """
+
+    :param word:
+    :return:
+    """
+    #random from list of relations
+    #api call
+    pass
