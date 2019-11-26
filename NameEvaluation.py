@@ -38,7 +38,7 @@ def frequency_count(poke_ngram_list):
     count_ngram = {}
     for ngram in unique_ngrams:
         count_ngram[ngram] = poke_ngram_list.count(ngram)
-    return count_ngram
+    return unique_ngrams, count_ngram
 
 
 def probability(bigram, unigram, V):
@@ -46,12 +46,30 @@ def probability(bigram, unigram, V):
     prob = (bigram + k) / (unigram + (k * V))
     return prob
 
+def probability_list(vocab, bi_count, uni_count, V):
+    propability_list_bigram = {}
+
+    for bigram in vocab:
+        first, second = bigram
+        prob_bigram = probability(bi_count[bigram], uni_count[first], V)
+        propability_list_bigram[bigram] = prob_bigram
+    return propability_list_bigram
+
+# def evaluation():
+#     input = "Pokemon"
+#     input_unigram = list(input.lower())
+#     input_bigrams = list(ngrams(input_unigram, 2))
+#
+#     for bigram in input_bigrams:
+#         prob = probability(bigram, )
+
 def run():
     bigram_list, unigram_list, V = ngram_lists()
-    bigram_count = frequency_count(bigram_list)
-    unigram_count = frequency_count(unigram_list)
+    bigram_vocab, bigram_count = frequency_count(bigram_list)
+    unigram_vocab, unigram_count = frequency_count(unigram_list)
 
-    input = "Pokemon"
-    input_unigram = list(input.lower())
-    input_n_grams = list(ngrams(input_unigram, 2))
+    bigram_probabilities = probability_list(bigram_vocab, bigram_count, unigram_count, V)
+
+
+
 
