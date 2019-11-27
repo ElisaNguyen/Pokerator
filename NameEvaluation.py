@@ -5,6 +5,7 @@ In case all are bad: pokemon suffixes? (e.g. horsemon)"""
 
 import pandas as pd
 from nltk.util import ngrams
+import math
 
 
 def load_data():
@@ -12,6 +13,7 @@ def load_data():
     poke_data = pd.read_csv("Data/pokemon.csv")
     poke_df = pd.DataFrame(poke_data)
     return poke_df
+
 
 def ngram_lists():
     # create a n-gram list with the n-grams from all the pokemon names
@@ -26,6 +28,7 @@ def ngram_lists():
 
     V = len(poke_unigram_list)
     return poke_bigram_list, poke_unigram_list, V
+
 
 # counts the frequency of the n-gram in question, input the n-gram list
 def frequency_count(poke_ngram_list):
@@ -43,7 +46,7 @@ def frequency_count(poke_ngram_list):
 
 def probability(bigram, unigram, V):
     k = 1
-    prob = (bigram + k) / (unigram + (k * V))
+    prob = math.log2((bigram + k) / (unigram + (k * V)))
     return prob
 
 def probability_list(vocab, bi_count, uni_count, V):
@@ -55,13 +58,20 @@ def probability_list(vocab, bi_count, uni_count, V):
         propability_list_bigram[bigram] = prob_bigram
     return propability_list_bigram
 
-# def evaluation():
-#     input = "Pokemon"
-#     input_unigram = list(input.lower())
-#     input_bigrams = list(ngrams(input_unigram, 2))
-#
-#     for bigram in input_bigrams:
-#         prob = probability(bigram, )
+def evaluation(poke_name, prob_list, uni_count, V):
+    input = poke_name
+    input_unigram = list(input.lower())
+    input_bigrams = list(ngrams(input_unigram, 2))
+
+    prob = 0
+    for bigram in input_bigrams:
+        first, second = bigram
+        if bigram in prob_list:
+            prob += prob_list[bigram]
+        else:
+            prob += math.log2((0 + 1) / (uni_count[first] + (1 * V)))
+    prob = (prob / len(input))
+    return prob
 
 def run():
     bigram_list, unigram_list, V = ngram_lists()
@@ -69,6 +79,9 @@ def run():
     unigram_vocab, unigram_count = frequency_count(unigram_list)
 
     bigram_probabilities = probability_list(bigram_vocab, bigram_count, unigram_count, V)
+    likelihood = evaluation("Barkerator", bigram_probabilities, unigram_count, V)
+    print(likelihood)
+    return likelihood
 
 
 
