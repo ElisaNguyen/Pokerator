@@ -18,10 +18,8 @@ def conceptnet_request(word, relation):
     df = pd.DataFrame(response['edges'])
     surface_texts = list(df[df['rel'].apply(lambda e: dict(e)['label'] == relation)]['surfaceText'])
     words = [e.replace('[', '').replace(']', '') for e in re.findall("\[+[a-z A-Z]+\]+", str(surface_texts))]
+    words = [w.lower().replace('the ', '').replace('a ', '') for w in words]
     words = list(set(words))
-    remove = []
-    for w in words:
-        if word in w:
-            remove.append(w)
-    [words.remove(w) for w in remove]
+    if word in words:
+        words.remove(word)
     return surface_texts, words
