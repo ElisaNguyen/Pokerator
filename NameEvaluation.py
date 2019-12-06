@@ -21,15 +21,14 @@ def load_poke_data():
     poke_df = pd.DataFrame(poke_data)
     return poke_df
 
-#TODO filter Wörter mit einem Character raus, um dann ein Model zu trainieren das auch einsilbige Wörter enthält
+
 # loads the cmu dictionary
 def load_cmu_data():
     entries = nltk.corpus.cmudict.entries()
     cmu_data = []
-    tok = sequencing.SyllableTokenizer()
     for item in entries:
         word, pronunciation = item
-        if word in re.findall("[a-z]*", word) and len(tok.tokenize(word)) >= 2:
+        if word in re.findall("[a-zA-Z]{2,}", word):
             cmu_data.append(word)
         else:
             pass
@@ -53,19 +52,34 @@ def merge_data_sets():
 
 
 # creates a bigram and a unigram list from the data set
-def ngram_lists():
+def ngram_lists_syllables():
     data = merge_data_sets()
     bigram_list = []
     unigram_list = []
     tok = sequencing.SyllableTokenizer()
     for word in data:
-        syllables = tok.tokenize(word.lower())
-        bigrams = list(ngrams(syllables, 2))
-        bigram_list.extend(bigrams)
-        unigram_list.extend(syllables)
+        if len(tok.tokenize(word)) >= 2:
+            syllables = tok.tokenize(word.lower())
+            bigrams = list(ngrams(syllables, 2))
+            bigram_list.extend(bigrams)
+            unigram_list.extend(syllables)
+        else:
+            pass
     V = len(bigram_list)
     return bigram_list, unigram_list, V
 
+#TODO filter Wörter mit einem Character raus, um dann ein Model zu trainieren das auch einsilbige Wörter enthält
+def ngram_lists_characters():
+    data = merge_data_sets()
+    bigram_list = []
+    unigram_list = []
+    for word in data:
+        characters = list(word.lower())
+        bigrams = list(ngrams(characters, 2))
+        bigram_list.extend(bigrams)
+        unigram_list.extend(characters)
+    V = len(bigram_list)
+    return bigram_list, unigram_list, V
 
 # counts the frequency of the n-gram in question, input the n-gram list
 def frequency_count(ngram_list):
@@ -87,8 +101,8 @@ def probability(bigram, unigram, V):
     return prob
 
 
-#TODO wenn wort nur eine silbe, dann suffix wegschmeißen und das einsilbige Wort auf Characterbasis evaluieren
-def probability_list(vocab, bi_count, uni_count, V):
+# takes the unigram and bigram counts as input and calculates the probability for each bigram and stores this in a dictionary
+def probability_list(vocab, bi_count, uni_count, V, path):
     propability_list_bigram = {}
 
     for bigram in vocab:
@@ -96,16 +110,26 @@ def probability_list(vocab, bi_count, uni_count, V):
         prob_bigram = probability(bi_count[bigram], uni_count[first], V)
         propability_list_bigram[bigram] = prob_bigram
 
-    pickle.dump(propability_list_bigram, open("Data/model.pckl", "wb"))
+    pickle.dump(propability_list_bigram, open(path, "wb"))
     return propability_list_bigram
 
-
+#TODO wenn wort nur eine silbe, dann suffix wegschmeißen und das einsilbige Wort auf Characterbasis evaluieren
 def evaluation(poke_name, uni_count, V):
     input = poke_name
     tok = sequencing.SyllableTokenizer()
-    input_unigram = tok.tokenize(input.lower())
-    input_bigrams = list(ngrams(input_unigram, 2))
-    prob_list = pickle.load(open("Data/model.pckl", "rb"))
+    endings = ['saur', 'bat', 'puff', 'duck', 'don', 'gon', 'bull', 'low', 'pede', 'no', 'ta']
+
+
+    if input.endswith(endings):
+        for suffix in endings:
+            input.strip(suffix)
+        input_char = list(input.lower())
+        input_char_bigrams = list(ngrams(input_char, 2))
+    else:
+        input_unigram = tok.tokenize(input.lower())
+        input_bigrams = list(ngrams(input_unigram, 2))
+        prob_list = pickle.load(open("Data/model.pckl", "rb"))
+
     prob = 0
     for bigram in input_bigrams:
         first, second = bigram
@@ -126,11 +150,11 @@ def evaluation(poke_name, uni_count, V):
 
 
 def run():
-    bigram_list, unigram_list, V = ngram_lists()
+    bigram_list, unigram_list, V = ngram_lists_syllables()
     bigram_vocab, bigram_count = frequency_count(bigram_list)
     unigram_vocab, unigram_count = frequency_count(unigram_list)
 
-    # bigram_probabilities = probability_list(bigram_vocab, bigram_count, unigram_count, V)
+    # bigram_probabilities = probability_list(bigram_vocab, bigram_count, unigram_count, V, "Data/model.pckl")
     likelihood = evaluation("dtimon", unigram_count, V)
     print(likelihood)
     return likelihood

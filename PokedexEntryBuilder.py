@@ -7,6 +7,8 @@ E.g. CapableOf → Name can … It...
 Insert conceptnet response into template
 E.g. Horsemon can jump a barrier.
 Adjust grammar if necessary?
+
+TODO: Make description based on one of the words in the name, then based on relation chosen. Make description 3 words
 """
 import pandas as pd
 import random
@@ -32,10 +34,21 @@ def get_random_edgetype():
 
     :return: a random edgetype as a string
     """
+    return str(random.choice(get_all_relations()))
+
+def get_all_relations():
+    """
+    Method to return all relations of conceptnet specified in the xlsx
+
+    :return: List of all relations, as strings
+    """
     data = pd.read_excel(r'C:\Users\Elisa\PycharmProjects\Pokerator\Data\APNLP_templates.xlsx')
     df = pd.DataFrame(data, columns = ['Edge types'])
     edgetypes = df.values.tolist()
-    return str(random.choice(edgetypes))[2:-2]
+    relations = []
+    for e in edgetypes:
+        relations.append(str(e)[2:-2])
+    return relations
 
 def build_sentence(word, relation):
     """
@@ -48,7 +61,9 @@ def build_sentence(word, relation):
     t = str(get_template(relation))
     r = cn.conceptnet_request(word, relation)
     if len(r[1]) == 0:
-        r = cn.conceptnet_request(word, "AtLocation")
+        for rel in get_all_relations():
+            if len(cn.conceptnet_request(word, rel)[1]) != 0:
+                r = cn.conceptnet_request(word, rel)
     sentence = t.replace(t[t.find("<"):t.find(">")+1], str(r[1][0])) + ". "
     return sentence
 
@@ -66,3 +81,5 @@ def build_description(answers):
         relation = get_random_edgetype()
         description = description + build_sentence(answer, relation)
     return description
+
+print(build_description(["basil", "tulip"]))
