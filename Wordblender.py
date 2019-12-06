@@ -36,12 +36,14 @@ def blend_a_word(word1, word2):
         words.append(syl_to_vowel(syl2) + syl_from_vowel(syl1) + np.random.choice(endings))
         words.append(syl_to_vowel(syl1) + syl_from_vowel(syl2) + np.random.choice(endings))
     else:
+        print(syl1, syl2)
         longer_word = syl1 if len(syl1) > len(syl2) else syl2
         shorter_word = syl2 if len(syl1) > len(syl2) else syl1
-        for i in range(1,len(longer_word)):
-            for j in range(1, len(shorter_word)):
+        for i in range(1, len(longer_word)):
+            for j in range(1, len(shorter_word)+1):
                 words.append(''.join(shorter_word[:j]) + ''.join(longer_word[i:]))
-        for i in range(1, len(shorter_word)):
+        print(words)
+        for i in range(0, len(shorter_word)):
             for j in range(1, len(longer_word)):
                 words.append(''.join(longer_word[:j]) + ''.join(shorter_word[i:]))
     return words
@@ -57,10 +59,8 @@ def syl_from_vowel(syl):
     vowels = ['a','e','i','u','o','y']
     i = 0
     while syl[i] not in vowels:
-        print(i, syl[i])
         if (len(syl)-1) <= i:
             if i == (len(syl)-1):
-                print(syl[i+1:])
                 return str(syl[i+1:] + np.random.choice(vowels))
             break
         i += 1
@@ -79,9 +79,9 @@ def syl_to_vowel(syl):
     [consonants.remove(v) for v in vowels]
     i = 0
     while syl[i] not in vowels:
-        if (len(syl) - 1) <= i:
-            break
         i += 1
+        if (len(syl)) <= i:
+            break
     if i == 0:
         return str(np.random.choice(consonants))
     return str(syl[:i])
