@@ -6,18 +6,33 @@ import pandas as pd
 
 #method that returns questions to ask to the user in list format
 def get_questions():
-    data = pd.read_excel(r'Data\APNLP_QuestionsToUser.xlsx')
+    '''
+    Method to get all questions out of the excel
+
+    :return: questions in list format
+    '''
+    data = pd.read_excel(r'C:\Users\Elisa\PycharmProjects\Pokerator\Data\APNLP_QuestionsToUser.xlsx')
     df = pd.DataFrame(data, columns=['Questions'])
-    questions = df.values.tolist()
+    list = df.values.tolist()
+    questions = []
+    for q in list:
+        q = str(q)[2:-2]
+        questions.append(q)
     return questions
 
 #Method to ask questions to user and return the answers
 def ask_questions():
+    '''
+    Method to ask questions to users
+
+    :return: dictionary of question and answer pairs, with the questions as keys
+    '''
     answers = {}
     for q in get_questions():
         answers[str(q)] = input (q)
     return answers
 
+print(ask_questions())
 
 
 
