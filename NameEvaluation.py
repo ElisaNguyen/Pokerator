@@ -113,23 +113,8 @@ def probability_list(vocab, bi_count, uni_count, V, path):
     pickle.dump(propability_list_bigram, open(path, "wb"))
     return propability_list_bigram
 
-#TODO wenn wort nur eine silbe, dann suffix wegschmeißen und das einsilbige Wort auf Characterbasis evaluieren
-def evaluation(poke_name, uni_count, V):
-    input = poke_name
-    tok = sequencing.SyllableTokenizer()
-    endings = ['saur', 'bat', 'puff', 'duck', 'don', 'gon', 'bull', 'low', 'pede', 'no', 'ta']
 
-
-    if input.endswith(endings):
-        for suffix in endings:
-            input.strip(suffix)
-        input_char = list(input.lower())
-        input_char_bigrams = list(ngrams(input_char, 2))
-    else:
-        input_unigram = tok.tokenize(input.lower())
-        input_bigrams = list(ngrams(input_unigram, 2))
-        prob_list = pickle.load(open("Data/model.pckl", "rb"))
-
+def evaluation_prob(input_bigrams, input_unigram, prob_list, uni_count, V):
     prob = 0
     for bigram in input_bigrams:
         first, second = bigram
@@ -148,14 +133,39 @@ def evaluation(poke_name, uni_count, V):
     prob = 2**prob
     return prob
 
+#TODO wenn wort nur eine silbe, dann suffix wegschmeißen und das einsilbige Wort auf Characterbasis evaluieren
+def evaluation(poke_name, uni_count, V):
+    input = poke_name
+    tok = sequencing.SyllableTokenizer()
+    endings = ['saur', 'bat', 'puff', 'duck', 'don', 'gon', 'bull', 'low', 'pede', 'no', 'ta']
+
+    for suffix in endings:
+        if input.endswith(suffix):
+            input = input.replace(suffix, '')
+            input_unigram = list(input.lower())
+            input_bigrams = list(ngrams(input_unigram, 2))
+            char_prob_list = pickle.load(open("Data/model_characters.pckl", "rb"))
+            prob = evaluation_prob(input_bigrams, input_unigram, char_prob_list, uni_count, V)
+            break
+
+    for suffix in endings:
+        if input.endswith(suffix) == False:
+            input_unigram = tok.tokenize(input.lower())
+            input_bigrams = list(ngrams(input_unigram, 2))
+            prob_list = pickle.load(open("Data/model_syllables.pckl", "rb"))
+            prob = evaluation_prob(input_bigrams, input_unigram, prob_list, uni_count, V)
+
+    return prob
+
 
 def run():
     bigram_list, unigram_list, V = ngram_lists_syllables()
     bigram_vocab, bigram_count = frequency_count(bigram_list)
     unigram_vocab, unigram_count = frequency_count(unigram_list)
 
-    # bigram_probabilities = probability_list(bigram_vocab, bigram_count, unigram_count, V, "Data/model.pckl")
-    likelihood = evaluation("dtimon", unigram_count, V)
+    # syllable_probabilities = probability_list(bigram_vocab, bigram_count, unigram_count, V, "Data/model_syllables.pckl")
+    # character_probabilities = probability_list(bigram_vocab, bigram_count, unigram_count, V, "Data/model_characters.pckl")
+    likelihood = evaluation("dtipede", unigram_count, V)
     print(likelihood)
     return likelihood
 
