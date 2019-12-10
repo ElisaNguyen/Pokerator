@@ -29,20 +29,18 @@ def blend_a_word(word1, word2):
     syl1 = tok.tokenize(word1)
     syl2 = tok.tokenize(word2)
     words = []
-    if len(syl1) == len(syl2):
+    if len(syl1) == len(syl2) == 1:
         endings = ['saur', 'bat', 'puff', 'duck', 'don','gon', 'bull', 'low', 'pede','no','ta']
         syl1 = syl1[0]
         syl2 = syl2[0]
         words.append(syl_to_vowel(syl2) + syl_from_vowel(syl1) + np.random.choice(endings))
         words.append(syl_to_vowel(syl1) + syl_from_vowel(syl2) + np.random.choice(endings))
     else:
-        print(syl1, syl2)
         longer_word = syl1 if len(syl1) > len(syl2) else syl2
         shorter_word = syl2 if len(syl1) > len(syl2) else syl1
         for i in range(1, len(longer_word)):
             for j in range(1, len(shorter_word)+1):
                 words.append(''.join(shorter_word[:j]) + ''.join(longer_word[i:]))
-        print(words)
         for i in range(0, len(shorter_word)):
             for j in range(1, len(longer_word)):
                 words.append(''.join(longer_word[:j]) + ''.join(shorter_word[i:]))
