@@ -40,10 +40,10 @@ def blend_a_word(word1, word2):
         shorter_word = syl2 if len(syl1) > len(syl2) else syl1
         for i in range(1, len(longer_word)):
             for j in range(1, len(shorter_word)+1):
-                words.append(''.join(shorter_word[:j]) + ''.join(longer_word[i:]))
+                words.append(''.join(shorter_word[:j]) + ''.join(longer_word[i:]).lower())
         for i in range(0, len(shorter_word)):
             for j in range(1, len(longer_word)):
-                words.append(''.join(longer_word[:j]) + ''.join(shorter_word[i:]))
+                words.append(''.join(longer_word[:j]) + ''.join(shorter_word[i:]).lower())
     return words
 
 
