@@ -7,8 +7,6 @@ E.g. CapableOf → Name can … It...
 Insert conceptnet response into template
 E.g. Horsemon can jump a barrier.
 Adjust grammar if necessary?
-
-TODO: Make description based on one of the words in the name, then based on relation chosen. Make description 3 words
 """
 import pandas as pd
 import random
@@ -82,4 +80,4 @@ def build_description(answers):
         description = description + build_sentence(answer, relation)
     return description
 
-print(build_description(["basil", "tulip"]))
+print(build_description(["penguin", "magnolia"]))
