@@ -29,5 +29,3 @@ def conceptnet_request(word, relation):
     #         if word == s['label'] and len(s['sense_label']) != 0:
     #             words_pos.append([word, s['sense_label']])
     return surface_texts, words
-
-print(conceptnet_request('apple', 'IsA'))
