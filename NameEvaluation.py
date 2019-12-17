@@ -2,7 +2,7 @@
 Likelihood of letters appearing in that order (n-grams of CMU dict or pokedex?)
 → Namelette in “Checking the phonetic likelihood of the new word”
 In case all are bad: pokemon suffixes? (e.g. horsemon)"""
-
+import numpy as np
 import pickle
 import nltk
 import pandas as pd
@@ -10,7 +10,7 @@ import nltk.tokenize.sonority_sequencing as sequencing
 from nltk.util import ngrams
 import math
 import re
-import numpy as np
+import operator
 nltk.download('cmudict')
 
 
@@ -167,14 +167,15 @@ def evaluation_prob(input_bigrams, input_unigram, prob_list, uni_count, V):
     for bigram in input_bigrams:
         first, second = bigram
         if bigram in prob_list:
-            prob += prob_list[bigram]
+            prob += 2**prob_list[bigram]
         else:
             if first in uni_count:
-                prob += math.log2((0 + 1) / (uni_count[first] + (1 * V)))
+                prob += ((0 + 1) / (uni_count[first] + (1 * V)))
             else:
-                prob += math.log2((0 + 1) / (0 + (1 * V)))
+                prob += ((0 + 1) / (0 + (1 * V)))
     prob = (prob / len(input_unigram))
-    prob = 2**prob
+    # prob = 2**prob
+
     return prob
 
 
@@ -197,9 +198,11 @@ def evaluation_syllable(poke_name):
 
     input_unigram = tok.tokenize(input_name.lower())
     input_bigrams = list(ngrams(input_unigram, 2))
-    prob = (0.5 * evaluation_prob(input_bigrams, input_unigram, prob_list_poke, uni_count_poke, V_poke)) \
-           + (0.5 * evaluation_prob(input_bigrams, input_unigram, prob_list_cmu, uni_count_cmu, V_cmu))
-    return prob
+    for i in np.arange(0.0, 1.0, 0.1):
+        # print("poke", i, "cmu", (1.0 - i))
+        prob = (i * evaluation_prob(input_bigrams, input_unigram, prob_list_poke, uni_count_poke, V_poke)) \
+               + ((1.0-i) * evaluation_prob(input_bigrams, input_unigram, prob_list_cmu, uni_count_cmu, V_cmu))
+    return prob, i
 
 
 def evaluation_character(poke_name):
@@ -222,13 +225,15 @@ def evaluation_character(poke_name):
             input_name = input_name.replace(suffix, '')
             input_unigram = list(input_name.lower())
             input_bigrams = list(ngrams(input_unigram, 2))
-            prob = (0.5 * evaluation_prob(input_bigrams, input_unigram, prob_list_poke, uni_count_poke, V_poke))\
-                   + (0.5 * evaluation_prob(input_bigrams, input_unigram, prob_list_cmu, uni_count_cmu, V_cmu))
+            for i in np.arange(0.0, 1.0, 0.1):
+                # print("poke", i, "cmu", (1.0-i))
+                prob = (i * evaluation_prob(input_bigrams, input_unigram, prob_list_poke, uni_count_poke, V_poke))\
+                    + ((1.0-i) * evaluation_prob(input_bigrams, input_unigram, prob_list_cmu, uni_count_cmu, V_cmu))
             input_name = poke_name
             break
-    return prob
+    return prob, i
 
-def run(blended_words):
+def evaluation_name(blended_words):
     """
     Evaluates a list of input names and decides which one is the best name
 
@@ -248,7 +253,7 @@ def run(blended_words):
     # character_probabilities_poke = create_model(bigram_vocab_char_poke, bigram_count_char_poke, unigram_count_char_poke,
     #                                        V_char_poke, "Data/model_characters_poke.pckl")
     #
-    # cmu_data = load_cmu_data()
+    cmu_data = load_cmu_data()
     # bigram_list_syl_cmu, unigram_list_syl_cmu, V_syl_cmu = ngram_lists_syllables(cmu_data)
     # bigram_vocab_syl_cmu, bigram_count_syl_cmu = frequency_count(bigram_list_syl_cmu)
     # unigram_vocab_syl_cmu, unigram_count_syl_cmu = frequency_count(unigram_list_syl_cmu)
@@ -266,17 +271,20 @@ def run(blended_words):
     input_probs = {}
 
     for name in blended_words:
-        for suffix in endings:
-            if name.endswith(suffix):
-                prob = evaluation_character(name)
-                input_probs[name] = prob
-                break
-            else:
-                prob = evaluation_syllable(name)
-                input_probs[name] = prob
+        if name in cmu_data:
+            pass
+        else:
+            for suffix in endings:
+                if name.endswith(suffix):
+                    prob, i = evaluation_character(name)
+                    input_probs[name, i] = prob
+                    break
+                else:
+                    prob, i = evaluation_syllable(name)
+                    input_probs[name, i] = prob
 
     print(input_probs)
-    best_name = max(input_probs)
+    best_name = max(input_probs.items(), key=operator.itemgetter(1))[0]
     print(best_name)
 
     return best_name
