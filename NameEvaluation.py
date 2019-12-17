@@ -228,7 +228,7 @@ def evaluation_character(poke_name):
             break
     return prob
 
-def run():
+def run(blended_words):
     """
     Evaluates a list of input names and decides which one is the best name
 
@@ -263,10 +263,9 @@ def run():
     #                                        V_char_cmu, "Data/model_characters_cmu.pckl")
 
     endings = ['saur', 'bat', 'puff', 'duck', 'don', 'gon', 'bull', 'low', 'pede', 'no', 'ta']
-    input_name = ['Girlpede', 'Pengnolia', 'Penguingnolia', 'Penlia', 'Penguinlia', 'MaPenguin', 'MagnoPenguin', 'Maguin', 'Magnoguin']
     input_probs = {}
 
-    for name in input_name:
+    for name in blended_words:
         for suffix in endings:
             if name.endswith(suffix):
                 prob = evaluation_character(name)
@@ -276,8 +275,9 @@ def run():
                 prob = evaluation_syllable(name)
                 input_probs[name] = prob
 
+    print(input_probs)
     best_name = max(input_probs)
-    print(best_name, prob)
+    print(best_name)
 
     return best_name
 
