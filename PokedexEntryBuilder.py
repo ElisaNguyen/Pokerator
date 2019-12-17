@@ -82,4 +82,4 @@ def build_description(answers):
         description = description + build_sentence(answer.lower())
     return description
 
-print(build_description(["penguin", "magnolia"]))
+print(build_description(["penguin", "tulip"]))
