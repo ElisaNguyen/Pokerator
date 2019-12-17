@@ -24,6 +24,6 @@ if __name__== "__main__":
                     blended_words[w] = [w1, w2]
     pokemon = run(blended_words.keys())
     description = build_description(blended_words[pokemon])
-    print('Your Pokémon: ')
-    print(pokemon)
+    print(pokemon.upper())
+    print('-------------------------------------------')
     print(description)
