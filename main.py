@@ -1,4 +1,6 @@
 import NameEvaluation as ne
+import Wordblender as wb
 
 if __name__== "__main__":
-    ne.run()
+    words = wb.blend_a_word("teapot", "horse")
+    ne.run(words)
