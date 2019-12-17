@@ -4,14 +4,15 @@ Questions are stored in APNLP_QuestionsToUser.xlsx
 """
 import pandas as pd
 
-#method that returns questions to ask to the user in list format
+
+# method that returns questions to ask to the user in list format
 def get_questions():
     '''
     Method to get all questions out of the excel
 
     :return: questions in list format
     '''
-    data = pd.read_excel(r'C:\Users\Elisa\PycharmProjects\Pokerator\Data\APNLP_QuestionsToUser.xlsx')
+    data = pd.read_excel('Data/APNLP_QuestionsToUser.xlsx')
     df = pd.DataFrame(data, columns=['Questions'])
     list = df.values.tolist()
     questions = []
@@ -20,7 +21,8 @@ def get_questions():
         questions.append(q)
     return questions
 
-#Method to ask questions to user and return the answers
+
+# Method to ask questions to user and return the answers
 def ask_questions():
     '''
     Method to ask questions to users
@@ -29,10 +31,14 @@ def ask_questions():
     '''
     answers = {}
     for q in get_questions():
-        answers[str(q)] = input (q)
+        answers[str(q)] = input(q)
     return answers
 
-print(ask_questions())
+
+def select_answers(answers):
+    answers = answers[2:]
+    print(answers)
+    return sorted(answers, key=len)[-2:]
 
 
 

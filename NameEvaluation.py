@@ -2,7 +2,7 @@
 Likelihood of letters appearing in that order (n-grams of CMU dict or pokedex?)
 → Namelette in “Checking the phonetic likelihood of the new word”
 In case all are bad: pokemon suffixes? (e.g. horsemon)"""
-
+import numpy as np
 import pickle
 import nltk
 import pandas as pd
@@ -10,7 +10,7 @@ import nltk.tokenize.sonority_sequencing as sequencing
 from nltk.util import ngrams
 import math
 import re
-import numpy as np
+import operator
 nltk.download('cmudict')
 
 
@@ -38,21 +38,6 @@ def load_cmu_data():
     return cmu_data
 
 
-def merge_data_sets():
-    poke_df = load_poke_data()
-    cmu_entries = load_cmu_data()
-    data = []
-    data.extend(cmu_entries)
-    # data.extend(np.random.choice(cmu_entries, 20000))
-    for name in poke_df["name"]:
-        if name in re.findall("[a-zA-Z]*", name):
-            data.append(name)
-        else:
-            pass
-    return data
-
-
-# creates a bigram and a unigram list from the data set
 def ngram_lists_syllables(data):
     """
     Creates unigrams and bigrams from the training corpus based on the syllables of words
@@ -95,7 +80,6 @@ def ngram_lists_characters(data):
     return bigram_list, unigram_list, V
 
 
-# counts the frequency of the n-gram in question, input the n-gram list
 def frequency_count(ngram_list):
     """
     Creates a list of unique ngrams and counts the frequency of the ngrams of the input list
@@ -130,7 +114,7 @@ def probability(bi_count, uni_count, V):
     return prob
 
 
-def create_model(vocab, bi_count, uni_count, V, path):
+def train_model(vocab, bi_count, uni_count, V, path):
     """
     Calculates and stores a model with a bigram as the dictionary key and its probability as the value
 
@@ -142,12 +126,10 @@ def create_model(vocab, bi_count, uni_count, V, path):
     :return: dictionary with bigram as key and its probability as the value
     """
     propability_list_bigram = {}
-
     for bigram in vocab:
         first, second = bigram
         prob_bigram = probability(bi_count[bigram], uni_count[first], V)
         propability_list_bigram[bigram] = prob_bigram
-
     pickle.dump([propability_list_bigram, uni_count, V], open(path, "wb"))
     return propability_list_bigram
 
@@ -167,14 +149,13 @@ def evaluation_prob(input_bigrams, input_unigram, prob_list, uni_count, V):
     for bigram in input_bigrams:
         first, second = bigram
         if bigram in prob_list:
-            prob += prob_list[bigram]
+            prob += 2**prob_list[bigram]
         else:
             if first in uni_count:
-                prob += math.log2((0 + 1) / (uni_count[first] + (1 * V)))
+                prob += ((0 + 1) / (uni_count[first] + (1 * V)))
             else:
-                prob += math.log2((0 + 1) / (0 + (1 * V)))
+                prob += ((0 + 1) / (0 + (1 * V)))
     prob = (prob / len(input_unigram))
-    prob = 2**prob
     return prob
 
 
@@ -183,22 +164,17 @@ def evaluation_syllable(poke_name):
     Evaluates an input word that has several syllables based on its syllables
 
     :param poke_name: input word
-    :param uni_count: count of occurrence of a unigram in the training set
-    :param V: size of the bigram vocabulary of the training set
     :return: probability of the input word
     """
     prob = 0
     input_name = poke_name
     tok = sequencing.SyllableTokenizer()
-    prob_list_poke, uni_count_poke, V_poke = pickle.load(
-        open("Data/model_syllables_poke.pckl", "rb"))
-    prob_list_cmu, uni_count_cmu, V_cmu = pickle.load(
-        open("Data/model_syllables_cmu.pckl", "rb"))
-
+    prob_list_poke, uni_count_poke, V_poke = pickle.load(open("Data/model_syllables_poke.pckl", "rb"))
+    prob_list_cmu, uni_count_cmu, V_cmu = pickle.load(open("Data/model_syllables_cmu.pckl", "rb"))
     input_unigram = tok.tokenize(input_name.lower())
     input_bigrams = list(ngrams(input_unigram, 2))
-    prob = (0.5 * evaluation_prob(input_bigrams, input_unigram, prob_list_poke, uni_count_poke, V_poke)) \
-           + (0.5 * evaluation_prob(input_bigrams, input_unigram, prob_list_cmu, uni_count_cmu, V_cmu))
+    prob = (0.4 * evaluation_prob(input_bigrams, input_unigram, prob_list_poke, uni_count_poke, V_poke)
+            + 0.6 * evaluation_prob(input_bigrams, input_unigram, prob_list_cmu, uni_count_cmu, V_cmu))
     return prob
 
 
@@ -207,8 +183,6 @@ def evaluation_character(poke_name):
     Evaluates an input word with an artificial suffix based on its characters
 
     :param poke_name: input word
-    :param uni_count: count of occurrence of a unigram in the training set
-    :param V: size of the bigram vocabulary of the training set
     :return: probability of the input word
     """
     prob = 0
@@ -216,69 +190,74 @@ def evaluation_character(poke_name):
     prob_list_poke, uni_count_poke, V_poke = pickle.load(open("Data/model_characters_poke.pckl", "rb"))
     prob_list_cmu, uni_count_cmu, V_cmu = pickle.load(open("Data/model_characters_cmu.pckl", "rb"))
     endings = ['saur', 'bat', 'puff', 'duck', 'don', 'gon', 'bull', 'low', 'pede', 'no', 'ta']
-
     for suffix in endings:
         if input_name.endswith(suffix):
             input_name = input_name.replace(suffix, '')
             input_unigram = list(input_name.lower())
             input_bigrams = list(ngrams(input_unigram, 2))
-            prob = (0.5 * evaluation_prob(input_bigrams, input_unigram, prob_list_poke, uni_count_poke, V_poke))\
-                   + (0.5 * evaluation_prob(input_bigrams, input_unigram, prob_list_cmu, uni_count_cmu, V_cmu))
+            prob = (0.4 * evaluation_prob(input_bigrams, input_unigram, prob_list_poke, uni_count_poke, V_poke))\
+                + (0.6 * evaluation_prob(input_bigrams, input_unigram, prob_list_cmu, uni_count_cmu, V_cmu))
             input_name = poke_name
             break
     return prob
 
-def run():
+
+def get_model():
+    """
+    Creates all the parameters necessary to train the model and to evaluate an input name and it trains the model
+    """
+    poke_data = load_poke_data()
+    bigram_list_syl_poke, unigram_list_syl_poke, V_syl_poke = ngram_lists_syllables(poke_data)
+    bigram_vocab_syl_poke, bigram_count_syl_poke = frequency_count(bigram_list_syl_poke)
+    unigram_vocab_syl_poke, unigram_count_syl_poke = frequency_count(unigram_list_syl_poke)
+
+    bigram_list_char_poke, unigram_list_char_poke, V_char_poke = ngram_lists_characters(poke_data)
+    bigram_vocab_char_poke, bigram_count_char_poke = frequency_count(bigram_list_char_poke)
+    unigram_vocab_char_poke, unigram_count_char_poke = frequency_count(unigram_list_char_poke)
+
+    syllable_probabilities_poke = train_model(bigram_vocab_syl_poke, bigram_count_syl_poke, unigram_count_syl_poke,
+                                          V_syl_poke, "Data/model_syllables_poke.pckl")
+    character_probabilities_poke = train_model(bigram_vocab_char_poke, bigram_count_char_poke, unigram_count_char_poke,
+                                           V_char_poke, "Data/model_characters_poke.pckl")
+
+    cmu_data = load_cmu_data()
+    bigram_list_syl_cmu, unigram_list_syl_cmu, V_syl_cmu = ngram_lists_syllables(cmu_data)
+    bigram_vocab_syl_cmu, bigram_count_syl_cmu = frequency_count(bigram_list_syl_cmu)
+    unigram_vocab_syl_cmu, unigram_count_syl_cmu = frequency_count(unigram_list_syl_cmu)
+
+    bigram_list_char_cmu, unigram_list_char_cmu, V_char_cmu = ngram_lists_characters(cmu_data)
+    bigram_vocab_char_cmu, bigram_count_char_cmu = frequency_count(bigram_list_char_cmu)
+    unigram_vocab_char_cmu, unigram_count_char_cmu = frequency_count(unigram_list_char_cmu)
+
+    syllable_probabilities_cmu = train_model(bigram_vocab_syl_cmu, bigram_count_syl_cmu, unigram_count_syl_cmu,
+                                          V_syl_cmu, "Data/model_syllables_cmu.pckl")
+    character_probabilities_cmu = train_model(bigram_vocab_char_cmu, bigram_count_char_cmu, unigram_count_char_cmu,
+                                           V_char_cmu, "Data/model_characters_cmu.pckl")
+
+
+def evaluation_name(blended_words):
     """
     Evaluates a list of input names and decides which one is the best name
 
     :return: best input name
     """
-    # poke_data = load_poke_data()
-    # bigram_list_syl_poke, unigram_list_syl_poke, V_syl_poke = ngram_lists_syllables(poke_data)
-    # bigram_vocab_syl_poke, bigram_count_syl_poke = frequency_count(bigram_list_syl_poke)
-    # unigram_vocab_syl_poke, unigram_count_syl_poke = frequency_count(unigram_list_syl_poke)
-    #
-    # bigram_list_char_poke, unigram_list_char_poke, V_char_poke = ngram_lists_characters(poke_data)
-    # bigram_vocab_char_poke, bigram_count_char_poke = frequency_count(bigram_list_char_poke)
-    # unigram_vocab_char_poke, unigram_count_char_poke = frequency_count(unigram_list_char_poke)
-    #
-    # syllable_probabilities_poke = create_model(bigram_vocab_syl_poke, bigram_count_syl_poke, unigram_count_syl_poke,
-    #                                       V_syl_poke, "Data/model_syllables_poke.pckl")
-    # character_probabilities_poke = create_model(bigram_vocab_char_poke, bigram_count_char_poke, unigram_count_char_poke,
-    #                                        V_char_poke, "Data/model_characters_poke.pckl")
-    #
-    # cmu_data = load_cmu_data()
-    # bigram_list_syl_cmu, unigram_list_syl_cmu, V_syl_cmu = ngram_lists_syllables(cmu_data)
-    # bigram_vocab_syl_cmu, bigram_count_syl_cmu = frequency_count(bigram_list_syl_cmu)
-    # unigram_vocab_syl_cmu, unigram_count_syl_cmu = frequency_count(unigram_list_syl_cmu)
-    #
-    # bigram_list_char_cmu, unigram_list_char_cmu, V_char_cmu = ngram_lists_characters(cmu_data)
-    # bigram_vocab_char_cmu, bigram_count_char_cmu = frequency_count(bigram_list_char_cmu)
-    # unigram_vocab_char_cmu, unigram_count_char_cmu = frequency_count(unigram_list_char_cmu)
-    #
-    # syllable_probabilities_cmu = create_model(bigram_vocab_syl_cmu, bigram_count_syl_cmu, unigram_count_syl_cmu,
-    #                                       V_syl_cmu, "Data/model_syllables_cmu.pckl")
-    # character_probabilities_cmu = create_model(bigram_vocab_char_cmu, bigram_count_char_cmu, unigram_count_char_cmu,
-    #                                        V_char_cmu, "Data/model_characters_cmu.pckl")
-
+    cmu_data = load_cmu_data()
+    # get_model()
     endings = ['saur', 'bat', 'puff', 'duck', 'don', 'gon', 'bull', 'low', 'pede', 'no', 'ta']
-    input_name = ['Girlpede', 'Pengnolia', 'Penguingnolia', 'Penlia', 'Penguinlia', 'MaPenguin', 'MagnoPenguin', 'Maguin', 'Magnoguin']
     input_probs = {}
-
-    for name in input_name:
-        for suffix in endings:
-            if name.endswith(suffix):
-                prob = evaluation_character(name)
-                input_probs[name] = prob
-                break
-            else:
-                prob = evaluation_syllable(name)
-                input_probs[name] = prob
-
-    best_name = max(input_probs)
-    print(best_name, prob)
-
+    for name in blended_words:
+        if name in cmu_data:
+            pass
+        else:
+            for suffix in endings:
+                if name.endswith(suffix):
+                    prob = evaluation_character(name)
+                    input_probs[name] = prob
+                    break
+                else:
+                    prob = evaluation_syllable(name)
+                    input_probs[name] = prob
+    best_name = max(input_probs.items(), key=operator.itemgetter(1))[0]
     return best_name
 
 
