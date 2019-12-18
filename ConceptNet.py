@@ -23,7 +23,7 @@ def conceptnet_request(word):
     can be used and the related words.
 
     :param word: a word
-    :return: list of words to a given relation, that relation, and the surface texts from conceptnet
+    :return: list of words to given relations as a dict, the possible relations as list, and the surface texts from conceptnet as dict per relation
     """
     url = 'http://api.conceptnet.io/c/en/' + word + '?limit=100'
     print(url)
@@ -31,11 +31,16 @@ def conceptnet_request(word):
     df = pd.DataFrame(response['edges'])
     unique_edges = df['rel'].apply(lambda e: dict(e)['label']).unique()
     possible_edges = [value for value in unique_edges if value in get_all_relations()]
-    chosen_edge = random.choice(possible_edges)
-    surface_texts = list(df[df['rel'].apply(lambda e: dict(e)['label'] == chosen_edge)]['surfaceText'])
-    words = [e.replace('[', '').replace(']', '') for e in re.findall("\[+[a-z A-Z]+\]+", str(surface_texts))]
-    words = [w.lower().replace('the ', '').replace('a ', '') for w in words]
-    words = list(set(words))
-    if word in words:
-        words.remove(word)
-    return words, chosen_edge, surface_texts
+    surface_texts = {}
+    words_per_edge = {}
+    for edge in possible_edges:
+        surface_texts[edge] = list(df[df['rel'].apply(lambda e: dict(e)['label'] == edge)]['surfaceText'])
+        words = [e.replace('[', '').replace(']', '') for e in re.findall("\[+[a-z A-Z]+\]+", str(surface_texts))]
+        words = [w.lower().replace('the ', '').replace('a ', '') for w in words]
+        words = list(set(words))
+        if word in words:
+            words.remove(word)
+        words_per_edge[edge] = words
+    return words_per_edge, possible_edges, surface_texts
+
+print(conceptnet_request('horse'))
