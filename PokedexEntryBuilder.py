@@ -20,12 +20,11 @@ def get_template(edgetype):
     :param edgetype: a string that is one of the conceptNet edgetypes
     :return: template for the edgetype that is specified in the excel and expected POS type
     """
-    data = pd.read_excel(r'C:\Users\Elisa\PycharmProjects\Pokerator\Data\APNLP_templates.xlsx')
-    df = pd.DataFrame(data, columns = ['Edge types', 'Template', 'Expected POS'])
+    xls = pd.ExcelFile(r'C:\Users\Elisa\PycharmProjects\Pokerator\Data\APNLP_templates.xlsx')
+    df = pd.read_excel(xls, edgetype)
     templates = df.values.tolist()
-    for t in templates:
-        if t[0] == edgetype:
-            return t[1], t[2]
+    chosen_t = random.choice(templates)
+    return chosen_t[0], chosen_t[1]
 
 def get_random_edgetype():
     """
@@ -40,7 +39,7 @@ def choose_word_pos(word_list, pos_list):
     Method to choose one word/characteristic out of the word list received from conceptnet
     Based on POS tagging of the root of the sentence (dependency parsing) and the expected POS tag
     :param word_list: word list from conceptnet
-    :param pos_list: from excel, expected pos for the requested sentence
+    :param pos_list: from excel, expected pos for the requested sentence in list form
     :return: one word/characteristic out of word list that fits to the expected pos tag
     '''
     word_list_possible = []
@@ -82,4 +81,4 @@ def build_description(answers):
         description = description + build_sentence(answer.lower())
     return description
 
-print(build_description(["penguin", "tulip"]))
+#print(build_description(["horse", "relaxing"]))
