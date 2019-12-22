@@ -9,7 +9,7 @@ def get_all_relations():
 
     :return: List of all relations, as strings
     """
-    data = pd.read_excel(r'C:\Users\Elisa\PycharmProjects\Pokerator\Data\APNLP_templates.xlsx')
+    data = pd.read_excel('Data/APNLP_templates.xlsx')
     df = pd.DataFrame(data, columns = ['Edge types'])
     edgetypes = df.values.tolist()
     relations = []
@@ -26,7 +26,6 @@ def conceptnet_request(word):
     :return: list of words to given relations as a dict, the possible relations as list, and the surface texts from conceptnet as dict per relation
     """
     url = 'http://api.conceptnet.io/c/en/' + word + '?limit=100'
-    print(url)
     response = requests.get(url).json()
     df = pd.DataFrame(response['edges'])
     unique_edges = df['rel'].apply(lambda e: dict(e)['label']).unique()
@@ -42,5 +41,3 @@ def conceptnet_request(word):
             words.remove(word)
         words_per_edge[edge] = words
     return words_per_edge, possible_edges, surface_texts
-
-print(conceptnet_request('horse'))

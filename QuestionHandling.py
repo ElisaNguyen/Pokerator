@@ -36,8 +36,13 @@ def ask_questions():
 
 
 def select_answers(answers):
+    """
+    Selects the two longest words of the answers and returns them.
+
+    :param answers: list of given answers
+    :return: two longest answers without the first two
+    """
     answers = answers[2:]
-    print(answers)
     return sorted(answers, key=len)[-2:]
 
 

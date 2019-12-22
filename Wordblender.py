@@ -1,20 +1,7 @@
-#Find synonyms to answers using WordNet
-#Blend words together
-import os
-
 import nltk.tokenize.sonority_sequencing as sequencing
-import pandas as pd
 import numpy as np
 from ConceptNet import conceptnet_request
 import string
-
-
-def blend_words(word_dict):
-    df = pd.DataFrame(columns=['word', 'question', 'synonyms'])
-    df['word'] = word_dict.values()
-    df['question'] = word_dict.keys()
-    df['synonyms'] = df['word'].apply(synonyms)
-    return df
 
 
 def blend_a_word(word1, word2):
