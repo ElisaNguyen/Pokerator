@@ -12,6 +12,7 @@ import pandas as pd
 import random
 import ConceptNet as cn
 import spacy
+from spellchecker import SpellChecker
 import gpt_2_simple as gpt2
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -25,7 +26,7 @@ def get_template(edgetype):
     :param edgetype: a string that is one of the conceptNet edgetypes
     :return: template for the edgetype that is specified in the excel and expected POS type
     """
-    xls = pd.ExcelFile('Data/APNLP_templates.xlsx')
+    xls = pd.ExcelFile('Data\APNLP_templates.xlsx')
     df = pd.read_excel(xls, edgetype)
     templates = df.values.tolist()
     chosen_t = random.choice(templates)
@@ -58,6 +59,18 @@ def filter_word_pos(word_list, pos_list):
                         word_list_possible.append(characteristic)
     return word_list_possible
 
+def check_spelling(word):
+    '''
+    Method to check whether a word is spelled correctly and returns the most likely word if its mispelled based on the minimum edit distance
+    :param word: a word (answer by user)
+    :return: correctly spelled word
+    '''
+    spell = SpellChecker()
+    mispelled = spell.unknown([word])
+    if len(mispelled) > 0:
+        return spell.correction(word)
+    else:
+        return word
 
 def build_sentence(word):
     """
@@ -66,7 +79,7 @@ def build_sentence(word):
     :param word: a word which was one of the answers given by the user
     :return: a sentence as string
     """
-    cn_answer = cn.conceptnet_request(word)
+    cn_answer = cn.conceptnet_request(check_spelling(word))
     for edge in cn_answer[1]:
         t = str(get_template(edge)[0])
         word_list = cn_answer[0][edge]
@@ -76,12 +89,12 @@ def build_sentence(word):
             sentence = t.replace(t[t.find("<"):t.find(">")+1], chosen_word) + ". "
             return sentence
 
-
 def build_description(answers, name):
     """
     Method to write the description of the Pokemon, randomly select 2 sentences
 
     :param answers: list of answers given by user that are used for the name
+    :param name: name of the pokemon
     :return: a description as string
     """
     answer = random.choice(answers)

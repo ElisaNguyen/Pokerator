@@ -9,7 +9,7 @@ def get_all_relations():
 
     :return: List of all relations, as strings
     """
-    data = pd.read_excel('Data/APNLP_templates.xlsx')
+    data = pd.read_excel('Data\APNLP_templates.xlsx')
     df = pd.DataFrame(data, columns = ['Edge types'])
     edgetypes = df.values.tolist()
     relations = []

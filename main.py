@@ -1,5 +1,6 @@
 # if code does not work run these lines in the command line:
 #!pip install  -q gpt-2-simple
+#!pip install pyspellchecker
 #!python -m spacy download en_core_web_sm
 
 from NameEvaluation import evaluation_name
