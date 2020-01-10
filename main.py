@@ -9,12 +9,12 @@ from QuestionHandling import ask_questions, select_answers
 from Wordblender import blend_a_word
 import warnings
 warnings.filterwarnings("ignore")
-
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 if __name__== "__main__":
     # evaluate two longest words
     answers = ask_questions()
-    print('Your Pokémon is now being generated...')
+    print('The egg is hatching...')
     w1, w2 = select_answers(list(answers.values()))
     blended_words = blend_a_word(w1, w2)
     pokemon = evaluation_name(blended_words)
