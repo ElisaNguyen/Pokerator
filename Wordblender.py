@@ -1,17 +1,36 @@
+import operator
+
 import nltk.tokenize.sonority_sequencing as sequencing
 import numpy as np
 from ConceptNet import conceptnet_request
 import string
 
 
-def blend_a_word(word1, word2):
+def select_answers(answers):
+    """
+    Selects the two longest words of the answers and returns them.
+
+    :param answers: list of given answers
+    :return: two longest answers without the first two
+    """
+    tok = sequencing.SyllableTokenizer()
+    syl_counts = {}
+    for answer in answers:
+        syl_counts[answer] = len(tok.tokenize(answer))
+    word1 = max(syl_counts.items(), key=operator.itemgetter(1))[0]
+    syl_counts.pop(word1)
+    word2 = max(syl_counts.items(), key=operator.itemgetter(1))[0]
+    return word1, word2
+
+
+def blend_a_word(answers):
     """
     Blends two words together in different variations.
 
-    :param word1: a word
-    :param word2: a word
+    :param answers: list of given answers
     :return: list of possible blended words
     """
+    word1, word2 = select_answers(answers)
     tok = sequencing.SyllableTokenizer()
     syl1 = tok.tokenize(word1)
     syl2 = tok.tokenize(word2)
@@ -31,7 +50,7 @@ def blend_a_word(word1, word2):
         for i in range(0, len(shorter_word)):
             for j in range(1, len(longer_word)):
                 words.append(''.join(longer_word[:j]) + ''.join(shorter_word[i:]).lower())
-    return words
+    return words, word1, word2
 
 
 def syl_from_vowel(syl):
