@@ -15,7 +15,7 @@ def select_answers(answers):
     """
     tok = sequencing.SyllableTokenizer()
     syl_counts = {}
-    for answer in answers:
+    for answer in answers[1:]:
         syl_counts[answer] = len(tok.tokenize(answer))
     word1 = max(syl_counts.items(), key=operator.itemgetter(1))[0]
     syl_counts.pop(word1)
