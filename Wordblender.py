@@ -8,7 +8,7 @@ import string
 
 def select_answers(answers):
     """
-    Selects the two longest words of the answers and returns them.
+    Selects the two words with the highest amount of syllables from the answers and returns them.
 
     :param answers: list of given answers
     :return: two longest answers without the first two
@@ -31,6 +31,8 @@ def blend_a_word(answers):
     :return: list of possible blended words
     """
     word1, word2 = select_answers(answers)
+    print(word1)
+    print(word2)
     tok = sequencing.SyllableTokenizer()
     syl1 = tok.tokenize(word1)
     syl2 = tok.tokenize(word2)
@@ -100,8 +102,4 @@ def synonyms(word):
     """
     texts, synonyms = conceptnet_request(word, 'RelatedTo')
     return synonyms
-
-
-
-
 
