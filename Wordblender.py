@@ -31,8 +31,6 @@ def blend_a_word(answers):
     :return: list of possible blended words
     """
     word1, word2 = select_answers(answers)
-    print(word1)
-    print(word2)
     tok = sequencing.SyllableTokenizer()
     syl1 = tok.tokenize(word1)
     syl2 = tok.tokenize(word2)
