@@ -13,8 +13,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 if __name__== "__main__":
     # evaluate two longest words
-    #answers = ask_questions()
-    answers = ['','starfish','yellow']
+    answers = ask_questions()
     print('The egg is hatching...')
     blended_words, w1, w2 = blend_a_word(answers)
     pokemon = evaluation_name(blended_words)
