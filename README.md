@@ -4,4 +4,4 @@ The  Pokérator  is  an  automatic  generator  of new Pokémon names with descri
 This project has been developed in the frame of the Advanced Project in Natural Language Processing at the University of Twente. 
 The project authors are Dominique Geissler (@domi151), Elisa Nguyen (@ElisaNguyen) and Daphne Theodorakopoulos (@daphne12345). 
 
-This project contains the Python files and Python notebooks created.
+This project contains the Python files, models and Python notebooks created.
