@@ -36,7 +36,7 @@ def blend_a_word(answers):
     syl2 = tok.tokenize(word2)
     words = []
     if len(syl1) == len(syl2) == 1:
-        endings = ['saur', 'bat', 'puff', 'duck', 'don','gon', 'bull', 'low', 'pede','no','ta']
+        endings = ['saur', 'bat', 'puff', 'don','gon', 'low', 'pede','no','ta']
         syl1 = syl1[0]
         syl2 = syl2[0]
         words.append(syl_to_vowel(syl2) + syl_from_vowel(syl1) + np.random.choice(endings))

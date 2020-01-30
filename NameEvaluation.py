@@ -189,7 +189,7 @@ def evaluation_character(poke_name):
     input_name = poke_name
     prob_list_poke, uni_count_poke, V_poke = pickle.load(open("Data/model_characters_poke.pckl", "rb"))
     prob_list_cmu, uni_count_cmu, V_cmu = pickle.load(open("Data/model_characters_cmu.pckl", "rb"))
-    endings = ['saur', 'bat', 'puff', 'duck', 'don', 'gon', 'bull', 'low', 'pede', 'no', 'ta']
+    endings = ['saur', 'bat', 'puff', 'don', 'gon', 'low', 'pede', 'no', 'ta']
     for suffix in endings:
         if input_name.endswith(suffix):
             input_name = input_name.replace(suffix, '')
@@ -243,7 +243,7 @@ def evaluation_name(blended_words):
     """
     cmu_data = load_cmu_data()
     # get_model()
-    endings = ['saur', 'bat', 'puff', 'duck', 'don', 'gon', 'bull', 'low', 'pede', 'no', 'ta']
+    endings = ['saur', 'bat', 'puff', 'don', 'gon', 'low', 'pede', 'no', 'ta']
     input_probs = {}
     for name in blended_words:
         if name in cmu_data:
