@@ -1,12 +1,5 @@
-"""Look up words in conceptNet (using a GET command to the REST API)
-Randomly (?) choose relations (e.g. CapableOf), test first if relation available
-E.g. http://conceptnet.io/c/en/horse?rel=/r/CapableOf&limit=10
-Generate pokedex entry
-Create templates for every relation (siehe Bild)
-E.g. CapableOf → Name can … It...
-Insert conceptnet response into template
-E.g. Horsemon can jump a barrier.
-Adjust grammar if necessary?
+"""
+Generate the Pokémon description
 """
 import pandas as pd
 import random
@@ -22,7 +15,7 @@ os.environ['KMP_WARNINGS'] = 'off'
 
 def get_template(edgetype):
     """
-    Method to import the template for description building based on conceptnet edgetype
+    Function to import the template for description building based on conceptnet edgetype
 
     :param edgetype: a string that is one of the conceptNet edgetypes
     :return: template for the edgetype that is specified in the excel and expected POS type
@@ -36,7 +29,7 @@ def get_template(edgetype):
 
 def get_random_edgetype():
     """
-    Method to get random edgetype
+    Function to get random edgetype
 
     :return: a random edgetype as a string
     """
@@ -45,7 +38,7 @@ def get_random_edgetype():
 
 def filter_word_pos(word_list, pos_list):
     """
-    Method to choose one word/characteristic out of the word list received from conceptnet
+    Function to choose one word/characteristic out of the word list received from conceptnet
     Based on POS tagging of the root of the sentence (dependency parsing) and the expected POS tag
     :param word_list: word list from conceptnet
     :param pos_list: from excel, expected pos for the requested sentence in list form
@@ -65,7 +58,7 @@ def filter_word_pos(word_list, pos_list):
 
 def check_spelling(word):
     """
-    Method to check whether a word is spelled correctly and returns the most likely word if its mispelled based on the minimum edit distance
+    Function to check whether a word is spelled correctly and returns the most likely word if its mispelled based on the minimum edit distance
     :param word: a word (answer by user)
     :return: correctly spelled word
     """
@@ -79,7 +72,7 @@ def check_spelling(word):
 
 def build_sentence(word):
     """
-    Method to write a sentence given a word, it looks up all the answers from conceptnet to find a fitting one
+    Function to write a sentence given a word, it looks up all the answers from conceptnet to find a fitting one
 
     :param word: a word which was one of the answers given by the user
     :return: a sentence as string
@@ -99,7 +92,7 @@ def build_sentence(word):
 
 def build_description(answers, name):
     """
-    Method to write the description of the Pokemon, randomly select 2 sentences
+    Function to write the description of the Pokemon, randomly select 2 sentences
 
     :param answers: list of answers given by user that are used for the name
     :param name: name of the pokemon
