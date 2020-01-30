@@ -1,11 +1,14 @@
+"""
+ConceptNet API requests
+"""
 import requests
 import pandas as pd
 import re
-import random
+
 
 def get_all_relations():
     """
-    Method to return all relations of conceptnet specified in the xlsx
+    Function to return all relations of conceptnet specified in the xlsx
 
     :return: List of all relations, as strings
     """
@@ -16,6 +19,7 @@ def get_all_relations():
     for e in edgetypes:
         relations.append(str(e)[2:-2])
     return relations
+
 
 def conceptnet_request(word):
     """

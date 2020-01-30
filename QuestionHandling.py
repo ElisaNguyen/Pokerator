@@ -7,7 +7,7 @@ import pandas as pd
 
 def get_questions():
     """
-    Method to get all questions out of the excel
+    Function to get all questions out of the excel
 
     :return: questions in list format
     """
@@ -23,7 +23,7 @@ def get_questions():
 
 def ask_questions():
     """
-    Method to ask questions to users
+    Function to ask questions to users
 
     :return: list of answers
     """

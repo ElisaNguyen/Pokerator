@@ -1,7 +1,9 @@
-"""Choose best
+"""
+Choose best
 Likelihood of letters appearing in that order (n-grams of CMU dict or pokedex?)
 → Namelette in “Checking the phonetic likelihood of the new word”
-In case all are bad: pokemon suffixes? (e.g. horsemon)"""
+In case all are bad: pokemon suffixes? (e.g. horsemon)
+"""
 import numpy as np
 import pickle
 import nltk
@@ -15,6 +17,10 @@ nltk.download('cmudict')
 
 
 def load_poke_data():
+    """
+    Function to load the Pokémon name data
+    :return: Pokémon name data as list
+    """
     poke_data = pd.read_csv("Data/pokemon.csv")
     poke_df = pd.DataFrame(poke_data)
     poke_data = []
@@ -27,6 +33,10 @@ def load_poke_data():
 
 
 def load_cmu_data():
+    """
+    Function to load the CMU dictionary data
+    :return: list of words from CMU dictionary that have at least 2 characters
+    """
     entries = nltk.corpus.cmudict.entries()
     cmu_data = []
     for item in entries:
@@ -41,7 +51,7 @@ def load_cmu_data():
 def ngram_lists_syllables(data):
     """
     Creates unigrams and bigrams from the training corpus based on the syllables of words
-
+    :param data: syllable data
     :return bigram_list: list of all the syllable bigrams that were created
     :return unigram_list: list of all the syllable unigrams that were created
     :return V: size of the vocabulary of the bigrams
@@ -64,7 +74,7 @@ def ngram_lists_syllables(data):
 def ngram_lists_characters(data):
     """
     Creates unigrams and bigrams from the training corpus based on the characters of words
-
+    :param data: word character data
     :return bigram_list: list of all the character bigrams that were created
     :return unigram_list: list of all the character unigrams that were created
     :return V: size of the bigram vocabulary of the training data
@@ -238,7 +248,7 @@ def get_model():
 def evaluation_name(blended_words):
     """
     Evaluates a list of input names and decides which one is the best name
-
+    :param blended_words: input names
     :return: best input name
     """
     cmu_data = load_cmu_data()
