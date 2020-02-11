@@ -7,22 +7,19 @@ import nltk.tokenize.sonority_sequencing as sequencing
 import numpy as np
 from ConceptNet import conceptnet_request
 import string
+import random
 
 
 def select_answers(answers):
     """
-    Selects the two words with the highest amount of syllables from the answers and returns them.
+    Selects the two random words from the answers and returns them.
 
     :param answers: list of given answers
     :return: two longest answers without the first two
     """
-    tok = sequencing.SyllableTokenizer()
-    syl_counts = {}
-    for answer in answers[1:]:
-        syl_counts[answer] = len(tok.tokenize(answer))
-    word1 = max(syl_counts.items(), key=operator.itemgetter(1))[0]
-    syl_counts.pop(word1)
-    word2 = max(syl_counts.items(), key=operator.itemgetter(1))[0]
+    word1 = random.choice(answers)
+    answers.remove(word1)
+    word2 = random.choice(answers)
     return word1, word2
 
 
