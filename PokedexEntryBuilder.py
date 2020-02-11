@@ -90,7 +90,7 @@ def build_sentence(word):
             return sentence
 
 
-def build_description(answers, name):
+def build_description(answers, name, run):
     """
     Function to write the description of the Pokemon, randomly select 2 sentences
 
@@ -102,7 +102,7 @@ def build_description(answers, name):
     description = build_sentence(answer.lower())
     if description is None:
         description = name.capitalize()
-    description = generation_gtp2(description, name)
+    description = generation_gtp2(description, name, run)
     return description
 
 
@@ -120,7 +120,7 @@ def filter_pokemon_names(desc, name):
     return desc
 
 
-def generation_gtp2(input_sent, name):
+def generation_gtp2(input_sent, name, run):
     """
     Generates a longer description based on the input sentence from concept net. It uses the gtp2 model trained on
     real Pokedex entries.
@@ -132,13 +132,14 @@ def generation_gtp2(input_sent, name):
     input_sent += ' '
     sess = gpt2.start_tf_sess()
     try:
-        gpt2.load_gpt2(sess, run_name='run3')
+        gpt2.load_gpt2(sess, run_name=run)
     except:
         gpt2.download_gpt2()
-        gpt2.load_gpt2(sess, run_name='run3')
-    desc = gpt2.generate(sess, run_name='run3', length=30, prefix=input_sent, return_as_list=True)[0]
+        gpt2.load_gpt2(sess, run_name=run)
+    desc = gpt2.generate(sess, run_name=run, length=100, prefix=input_sent, return_as_list=True)[0]
     desc = filter_pokemon_names(desc, name)
     desc = desc.replace('. ', '.')
-    desc = '.\n'.join(desc.split('.')[:-1]) + '.'
+    desc = '.\n'.join(desc.split('.')[1:4]) + '.'
     desc = desc.replace('  ', ' ').replace('\n ', '\n')
+    desc = desc[1:] if desc[0] ==' ' else desc
     return desc

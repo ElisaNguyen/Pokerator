@@ -17,7 +17,7 @@ if __name__== "__main__":
     print('The egg is hatching...')
     blended_words, w1, w2 = blend_a_word(answers)
     pokemon = evaluation_name(blended_words)
-    description = build_description([w1, w2], pokemon)
+    description = build_description([w1, w2], pokemon, 'run3')
 
     print(pokemon.upper())
     print('-------------------------------------------')
