@@ -1,7 +1,7 @@
 """
 Evaluate generated descriptions to select the best one based on Rouge measures
 """
-# !pip install rouge
+# !pip install py-rouge
 import rouge
 
 
@@ -15,12 +15,19 @@ def load_desc_data():
     return data
 
 
-def calculate_rouge(descriptions):
+def calculate_rouge(description):
     """
-    Function to calculate rouge scores up to Rouge5 for generated descriptions
-    :param descriptions: generated descriptions
+    Function to calculate rouge scores up to Rouge5 for one generated description
+    :param description: generated description
     :return: rouge scores for generated descriptions
     """
+    evaluator = rouge.Rouge(metrics=['rouge-n'], max_n=5)
+    training_data = load_desc_data()
+    scores = evaluator.get_scores(description, training_data)
+    return scores
+print(calculate_rouge("It is said that whoever it is that desires it must embrace it. It is said to keep it close by "
+                      "bending its branches to its waist. Its two tails dance through the air with each passing "
+                      "second."))
 
 
 def evaluate_descriptions(descriptions):
