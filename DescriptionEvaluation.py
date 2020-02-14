@@ -11,7 +11,7 @@ def load_desc_data():
     Function to load the description dataset from the Pokedex
     :return: description data in a string
     """
-    with open("Data\pokedex_descriptions.txt", "r", encoding="utf8") as file:
+    with open("Data/pokedex_descriptions.txt", "r", encoding="utf8") as file:
         data = file.read().replace("\n", " ")
     return data
 
@@ -31,21 +31,16 @@ def calculate_rouge(description):
 def choose_best(df):
     """
     Function to choose the best description based on rouge 1-5 values
-    Most favourable: rouge precision of 0 for rouge5, high precision for rouge1 and rouge 2, low precision for rouge4
+    Most favourable: rouge precision of 0 for rouge5, high precision for rouge 2, low precision for rouge4
     :param df: dataframe with description indexes and their rouge scores
     :return: index of best description
     """
     print(df)
-    df = df[df.r5 > 0]
-    df_rank = pd.DataFrame()
-    df_rank['r1_rank'] = df['r1'].rank()
-    df_rank['r2_rank'] = df['r2'].rank()
-    df_rank['r4_rank'] = df['r4'].rank()
-    #make the sum of the ranks and choose the highest rank overall
-    #df_rank['final_rank'] = df_rank.sum()
-    print(df_rank)
-    best = 1
-    return best
+    df = df[df.r5 == 0]
+    df['r2r4diff'] = df['r2']-df['r4']
+    df['best'] = df['r2r4diff'].idxmax(axis=0)
+    print(df)
+    return df['best'].iat[0]
 
 
 def evaluate_descriptions(descriptions):
@@ -60,20 +55,7 @@ def evaluate_descriptions(descriptions):
         rouge_scores.append([descriptions.index(desc), scores['rouge-1']['p'], scores['rouge-2']['p'],
                              scores['rouge-3']['p'], scores['rouge-4']['p'], scores['rouge-5']['p']])
     rouge_scores = pd.DataFrame(rouge_scores, columns=['DescID', 'r1', 'r2', 'r3', 'r4', 'r5'])
+
+    rouge_scores.to_csv('Data/rouge_scores.csv')
     best = descriptions[choose_best(rouge_scores)]
     return best
-
-evaluate_descriptions(["It is said that whoever it is that desires it must embrace it. It is said to keep it close by "
-                       "bending its branches to its waist. Its two tails dance through the air with each passing "
-                       "second.",
-                       "It tries to eat anything that moves. The pattern on this Pokémon's wings suggests that it may "
-                       "have come into being as a result of living with water. When it swims by spinning its "
-                       "tentacles, it swallows everything in one big gulp.", "Walmart's cubby loves to eat at the "
-                                                                             "bustling stands of fast-food "
-                                                                             "restaurants,  and shares a snack with "
-                                                                             "its companions. Teaapple's thin and "
-                                                                             "flexible body lets it bend and sway to "
-                                                                             "avoid any attack, however strong it may "
-                                                                             "be. From its mouth, this Pokémon spits "
-                                                                             "a corrosive fluid that melts even "
-                                                                             "iron."])
