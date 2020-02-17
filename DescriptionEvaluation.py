@@ -35,11 +35,9 @@ def choose_best(df):
     :param df: dataframe with description indexes and their rouge scores
     :return: index of best description
     """
-    print(df)
     df = df[df.r5 == 0]
-    df['r2r4diff'] = df['r2']-df['r4']
+    df['r2r4diff'] = df['r2'] - df['r4']
     df['best'] = df['r2r4diff'].idxmax(axis=0)
-    print(df)
     return df['best'].iat[0]
 
 
@@ -59,3 +57,16 @@ def evaluate_descriptions(descriptions):
     rouge_scores.to_csv('Data/rouge_scores.csv')
     best = descriptions[choose_best(rouge_scores)]
     return best
+
+
+def check_description_is_novel(description):
+    """
+    Function to check one description on their rouge scores (if rouge 5 precision is higher than 0)
+    :param description: one generated description
+    :return: true (if description is novel) or false (if description is not novel)
+    """
+    scores = calculate_rouge(description)
+    if scores['rouge-5']['p'] == 0:
+        return True
+    else:
+        return False
