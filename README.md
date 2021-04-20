@@ -5,3 +5,6 @@ This project has been developed in the frame of the Advanced Project in Natural 
 The project authors are Dominique Geissler (@domi151), Elisa Nguyen (@ElisaNguyen) and Daphne Theodorakopoulos (@daphne12345). 
 
 This project contains the Python files, models and Python notebooks created.
+
+### Publication
+Geissler, D., Nguyen, E., Theodorakopoulos, D., & Gatti, L. (2020). Pokérator - Unveil your inner Pokémon. In Proceedings of the 11th International Conference on Computational Creativity (ICCC’20) (pp. 500-503) http://computationalcreativity.net/iccc20/papers/159-iccc20.pdf 
